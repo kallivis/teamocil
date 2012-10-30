@@ -34,6 +34,11 @@ module Teamocil
         bail "You must be in a tmux session to use teamocil" unless env["TMUX"]
 
         yaml = ERB.new(File.read(file)).result
+       if @options[:default]
+           defaultFile = @options[:layout] || ::File.join(layout_path, "default.yml")
+           defaultYaml = ERB.new(File.read(defaultFile)).result
+           yaml.concat(defaultYaml)
+       end
 
         @layout = Teamocil::Layout.new(YAML.load(yaml), @options)
 
@@ -57,6 +62,11 @@ module Teamocil
         opts.on("--here", "Set up the first window in the current window") do
           @options[:here] = true
         end
+        
+        opts.on("--default", "Adds the default layout to the layout") do
+          @options[:default] = true
+        end
+
 
         opts.on("--edit", "Edit the YAML layout file instead of using it") do
           @options[:edit] = true
